@@ -36,7 +36,7 @@ GM_addStyle (`
 
 GM_addStyle (`
     html body {
-        color: #DEDEDE !important;
+        color: var(--mw-color-primary) !important;
     }
 `);
 
@@ -93,7 +93,14 @@ GM_addStyle (`
 
 GM_addStyle (`
     .horizontal_nav_container {
+        background: var(--mw-backgroundColor-primary) !important;
+    }
+`);
+
+GM_addStyle (`
+    .horizontal_nav_container .navbar-nav > li#crux_nav_documentation.active {
         background: var(--mw-backgroundColor-active) !important;
+        color: var(--mw-color-primary) !important;
     }
 `);
 
@@ -159,9 +166,12 @@ GM_addStyle(`
     }
 `);
 
+// This is supposed to be the background color for dropdown on search
 GM_addStyle(`
     #suggestions {
-        background: var(--mw-backgroundColor-primary) !important;
+        background: var(--mw-backgroundColor-active) !important;
+        box-shadow: 1px 1px 2px 2px rgb(255 255 255 / 25%) !important;
+        border: 1px solid var(--mw-backgroundColor-dragged) !important;
     }
 `);
 
@@ -173,8 +183,14 @@ GM_addStyle(`
 
 GM_addStyle(`
     .typeahead_container a:not(.see_all_results) {
-         color: var(--mw-backgroundColor-primary) !important;
+         color: var(--mw-color-code) !important;
      }
+`);
+
+GM_addStyle(`
+    .typeahead_container a:not(.see_all_results):hover {
+        background-color: var(--mw-backgroundColor-primary) !important;
+    }
 `);
 
 // Tables
@@ -222,6 +238,20 @@ GM_addStyle (`
     }
 `);
 
+// Highlight
+GM_addStyle(`
+    .highlight_01 {
+        background-color: #515110 !important;
+    }
+`);
+
+// need to remove from doc_center.css, but for highligting
+GM_addStyle(`
+    .anchor_hinting {
+        background-color: #4C5F66 !important;
+    }
+`);
+
 // Footer
 GM_addStyle(`
     footer {
@@ -231,15 +261,32 @@ GM_addStyle(`
 `);
 
 // Get rid of pesky !important CSS in linked style sheets
-window.addEventListener('load', function() {
+function removeAllThoseImportants() {
+//window.addEventListener('load', function() {
 
     document.body.classList.add('mw-theme-dark');
-    const doc_centerCss = document.styleSheets[5];
-    const com_min = document.styleSheets[1];
-    const theme_css = [...document.styleSheets].filter( function(arr) {
-        if (arr.href === 'https://www.mathworks.com/help/docsurvey/release/index-css.css') {
-            return true;}
+    const doc_centerCss = [...document.styleSheets].filter(function(arr) {
+        if (arr.href && arr.href.includes("doc_center.")) {return true;}
     })[0];
+    const com_min = document.styleSheets[1];
+    const footer_min = [...document.styleSheets].filter(function(arr) {
+        if (arr.href && arr.href.includes("footer")) {return true;}
+    })[0];
+    const theme_css = [...document.styleSheets].filter( function(arr) {
+        if (arr.href && arr.href.includes("docsurvey/release/index-css.css")) {return true;}
+    })[0];
+
+    // If the index-css with dark mode stuff doesn't exist, add it
+    if (!theme_css) {
+        const li = document.createElement('link');
+        li.type = 'text/css';
+        const href = 'https://www.mathworks.com/help/docsurvey/release/index-css.css';
+        li.setAttribute('rel','stylesheet');
+        li.setAttribute('href', href);
+        const s = document.getElementsByTagName('head')[0];
+        s.appendChild(li,s);
+    }
+
     let idx = [];
     let cnt = 0;
     let rule;
@@ -288,8 +335,31 @@ window.addEventListener('load', function() {
             com_min.insertRule(newRule, i);
         });
     }
+    idx = [];
+    cnt = 0;
+    [...footer_min.rules].forEach(function(rule){
+        if(rule) {
+            if (rule.selectorText) {
+                // Dropdown text color
+                if (rule.selectorText === '.typeahead_container a:not(.see_all_results)') {
+                    idx.push(cnt);
+                }
+            }
+        }
+        cnt++;
+    });
+    if (idx.length > 0) {
+        idx.forEach(function(i){
+            let newRule = footer_min.rules.item(i).cssText;
+            newRule = newRule.replaceAll(" !important", "");
+            footer_min.deleteRule(i);
+            footer_min.insertRule(newRule, i);
+        });
+    }
 
     // Add missing dark mode definitions
     const toAdd = `--mw-brandcolor-brand1:var(--mw-color-brand4); --mw-brandcolor-brand2:var(--mw-color-brand3); --mw-brandcolor-brand3:var(--mw-color-brand2); --mw-brandcolor-brand4:var(--mw-color-brand1);`;
     theme_css.insertRule(`.mw-theme-dark { ${toAdd} }`);
-});
+}
+
+removeAllThoseImportants();
