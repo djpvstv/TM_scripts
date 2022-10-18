@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         DarkDoc
 // @namespace    https://www.mathworks.com/
-// @version      0.1
+// @version      0.2
 // @description  try to darkn the world!
 // @author       DJ PVSTV
 // @match        https://www.mathworks.com/help/*
