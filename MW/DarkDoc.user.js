@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         DarkDoc
 // @namespace    https://www.mathworks.com/
-// @version      0.2
+// @version      0.21
 // @description  try to darkn the world!
 // @author       DJ PVSTV
 // @match        https://www.mathworks.com/help/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mathworks.com
 // @grant        none
-// @run-at       document-start
+// @run-at       document-end
 // ==/UserScript==
 
 function GM_addStyle(css) {
