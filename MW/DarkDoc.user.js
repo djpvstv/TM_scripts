@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         DarkDoc
 // @namespace    https://www.mathworks.com/
-// @version      0.2
-// @description  try to take over the world!
+// @version      0.3
+// @description  try to darken the world!
 // @author       You
 // @match        https://www.mathworks.com/help/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mathworks.com
