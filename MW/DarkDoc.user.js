@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         DarkDoc
 // @namespace    https://www.mathworks.com/
-// @version      0.21
-// @description  try to darkn the world!
-// @author       DJ PVSTV
+// @version      0.2
+// @description  try to take over the world!
+// @author       You
 // @match        https://www.mathworks.com/help/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=mathworks.com
 // @grant        none
@@ -260,8 +260,38 @@ GM_addStyle(`
     }
 `);
 
+function waitForCss(selector) {
+    return new Promise(resolve => {
+        const testFcn = function (selector) {
+            return [...document.styleSheets].filter( function(arr) {
+                if (arr.href && arr.href.includes(selector)) {return true;}
+            })[0];
+        }
+
+        if (testFcn(selector)) {
+            return resolve(testFcn(selector));
+        }
+
+        const observer = new MutationObserver(mutations => {
+            if (testFcn(selector)) {
+                resolve (testFcn(selector));
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+
+function complainThatSomethingLoaded() {
+    console.log(`I guess the index-css.css loaded`);
+}
+
 // Get rid of pesky !important CSS in linked style sheets
-function removeAllThoseImportants() {
+async function removeAllThoseImportants() {
 //window.addEventListener('load', function() {
 
     document.body.classList.add('mw-theme-dark');
@@ -272,20 +302,7 @@ function removeAllThoseImportants() {
     const footer_min = [...document.styleSheets].filter(function(arr) {
         if (arr.href && arr.href.includes("footer")) {return true;}
     })[0];
-    const theme_css = [...document.styleSheets].filter( function(arr) {
-        if (arr.href && arr.href.includes("docsurvey/release/index-css.css")) {return true;}
-    })[0];
-
-    // If the index-css with dark mode stuff doesn't exist, add it
-    if (!theme_css) {
-        const li = document.createElement('link');
-        li.type = 'text/css';
-        const href = 'https://www.mathworks.com/help/docsurvey/release/index-css.css';
-        li.setAttribute('rel','stylesheet');
-        li.setAttribute('href', href);
-        const s = document.getElementsByTagName('head')[0];
-        s.appendChild(li,s);
-    }
+    const theme_css = await waitForCss("docsurvey/release/index-css.css");
 
     let idx = [];
     let cnt = 0;
@@ -360,6 +377,17 @@ function removeAllThoseImportants() {
     // Add missing dark mode definitions
     const toAdd = `--mw-brandcolor-brand1:var(--mw-color-brand4); --mw-brandcolor-brand2:var(--mw-color-brand3); --mw-brandcolor-brand3:var(--mw-color-brand2); --mw-brandcolor-brand4:var(--mw-color-brand1);`;
     theme_css.insertRule(`.mw-theme-dark { ${toAdd} }`);
+}
+
+// Case we do not load the main dark mode css
+if (document.querySelectorAll(`link[href*=docsurvey\\/release\\/index-css]`).length < 1) {
+    const li = document.createElement('link');
+    li.type = 'text/css';
+    const href = "/help/docsurvey/release/index-css.css";
+    li.setAttribute('href', href);
+    li.setAttribute('rel', 'stylesheet');
+    const h = document.querySelector('head');
+    h.appendChild(li, h);
 }
 
 removeAllThoseImportants();
