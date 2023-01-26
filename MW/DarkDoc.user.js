@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         DarkDoc
 // @namespace    https://www.mathworks.com/
-// @version      0.3
+// @version      0.31
 // @description  try to darken the world!
 // @author       You
 // @match        https://www.mathworks.com/help/*
@@ -65,7 +65,7 @@ GM_addStyle (`
 
 GM_addStyle (`
     .sidebar-offcanvas {
-        background-color: var(--mw-backgroundColor-active) !important;
+        background-color: var(--mw-backgroundColor-superPrimary) !important;
     }
 `);
 
@@ -260,6 +260,41 @@ GM_addStyle(`
     }
 `);
 
+// Hover over right panel links
+GM_addStyle(`
+    .sidebar-offcanvas .nav_toc li a:hover {
+        background-color: var(--mw-backgroundColor-secondary) !important;
+    }
+`);
+
+// Footer Text
+GM_addStyle(`
+    footer a, footer a:focus, footer a:visited, footer a:hover {
+        color: var(--mw-color-primary) !important;
+    }
+`);
+
+// Trail container background
+GM_addStyle(`
+    .body_trail_container {
+        background-color: var(--mw-backgroundColor-primary) !important;
+    }
+`);
+
+// Panels
+GM_addStyle(`
+    .doc_category_panel {
+        background-color: var(--mw-backgroundColor-superPrimary) !important;
+    }
+`);
+
+// Icons
+GM_addStyle(`
+    .doc_category_panel [class*="pictogram"]::before {
+        color: var(--mw-backgroundColor-iconuiFill) !important;
+    }
+`);
+
 function waitForCss(selector) {
     return new Promise(resolve => {
         const testFcn = function (selector) {
@@ -375,7 +410,7 @@ async function removeAllThoseImportants() {
     }
 
     // Add missing dark mode definitions
-    const toAdd = `--mw-brandcolor-brand1:var(--mw-color-brand4); --mw-brandcolor-brand2:var(--mw-color-brand3); --mw-brandcolor-brand3:var(--mw-color-brand2); --mw-brandcolor-brand4:var(--mw-color-brand1);`;
+    const toAdd = `--mw-brandcolor-brand1:var(--mw-color-brand4); --mw-brandcolor-brand2:var(--mw-color-brand3); --mw-brandcolor-brand3:var(--mw-color-brand2); --mw-brandcolor-brand4:var(--mw-color-brand1); --mw-backgroundColor-superPrimary:#0B0B0B`;
     theme_css.insertRule(`.mw-theme-dark { ${toAdd} }`);
 }
 
